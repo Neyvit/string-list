@@ -1,8 +1,10 @@
 package pro.sky.java.course2;
 
+import java.util.Collections;
+
 public class Main {
 
     public static void main(String[] args) {
-	// write your code here
+        StringList strings = new StringListImpl();
     }
 }
