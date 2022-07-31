@@ -3,6 +3,13 @@ package pro.sky.java.course2;
 import pro.sky.java.course2.exceptions.NullStringException;
 
 public interface StringList {
+
+    // Проверка элемента на предмет равенства null.
+    boolean validateItem(String item);
+
+    // Проверка index элемента на предмет корректности.
+    boolean validateIndex(int index);
+
     // Добавление элемента.
     // Вернуть добавленный элемент
     // в качестве результата выполнения.
@@ -78,4 +85,7 @@ public interface StringList {
     // из строк в списке
     // и вернуть его.
     String[] toArray();
+
+    // Мой самодельный метод для того, чтобы распечатывать списки и проверять выполнение методов.
+    String toString();
 }

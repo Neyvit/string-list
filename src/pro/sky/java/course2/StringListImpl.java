@@ -1,13 +1,14 @@
 package pro.sky.java.course2;
 
+import pro.sky.java.course2.exceptions.InvalidIndexException;
 import pro.sky.java.course2.exceptions.NullStringException;
 
 import java.util.Arrays;
 
 public class StringListImpl implements StringList {
 
-    private final int DEFAULT_CAPACITY = 20;
-    private int size;
+    private static final int DEFAULT_CAPACITY = 20;
+    private int size = 0;
 
 
     private String[] stringArray;
@@ -21,70 +22,79 @@ public class StringListImpl implements StringList {
     }
 
 
-    public String[] getStringArray() {
-        return stringArray;
+    @Override
+    public boolean validateItem(String item) {
+        if (item == null) {
+            throw new NullStringException();
+        } else
+            return true;
     }
 
-//    public StringListImpl(StringListImpl[] myStringList) {
-//        this.myStringList = myStringList;
-//    }
-
+    @Override
+    public boolean validateIndex(int index) {
+        if (index < 0 || index >= DEFAULT_CAPACITY - 1) {
+            throw new InvalidIndexException();
+        } else
+            return true;
+    }
 
     @Override
     public String add(String item) {
-        if (item != null) {
+        if (size == stringArray.length) {
+            throw new InvalidIndexException();
+        } else if (validateItem(item) == true) {
+            stringArray[size++] = item;
             return item;
-        } else throw new NullStringException();
+        } else {
+            throw new NullStringException();
+        }
     }
 
     @Override
     public String add(int index, String item) {
-        if (index < 0 || index > DEFAULT_CAPACITY) {
-            throw new NullStringException();
-        }
-        for (int i = index; i < DEFAULT_CAPACITY - 1; i++) {
-            stringArray[i + 1] = stringArray[i];
-            stringArray[i] = item;
+        if (validateItem(item) == true && validateIndex(index) == true) {
+                for (int i = size; i >= index; i--) {
+                    stringArray[i + 1] = stringArray[i];
+                }
+            stringArray[index] = item;
+            size++;
         }
         return item;
     }
 
     @Override
     public String set(int index, String item) {
-        if (index < 0 || index > DEFAULT_CAPACITY) {
-            throw new NullStringException();
+        if (validateIndex(index) == true && validateItem(item) == true) {
+            stringArray[index] = item;
         }
-        stringArray[index] = item;
         return item;
     }
 
     @Override
     public String remove(String item) {
-        for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-            if (item == stringArray[i]) {
-                stringArray[i] = stringArray[i + 1];
-                i++;
-            } else throw new NullStringException();
+        if (validateItem(item) == true) {
+            remove(indexOf(item));
         }
         return item;
     }
 
     @Override
     public String remove(int index) {
-        if (stringArray[index] == null) {
-            throw new NullStringException();
-        }else
-        for (int i = index; i < DEFAULT_CAPACITY; i++) {
-            stringArray[i] = stringArray[i + 1];
-            i++;
+        String temp = null;
+        if (validateIndex(index) == true) {
+            temp = stringArray[index];
+            for (int i = index; i < size; i++) {
+                stringArray[i] = stringArray[i + 1];
+            }
+            size--;
         }
-        return stringArray[index];
+        return temp;
     }
 
     @Override
     public boolean contains(String item) {
-        for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-            if (item == stringArray[i]) {
+        for (int i = 0; i < size; i++) {
+            if (indexOf(item) != -1) {
                 return true;
             }
         }
@@ -93,8 +103,8 @@ public class StringListImpl implements StringList {
 
     @Override
     public int indexOf(String item) {
-        for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-            if (item == stringArray[i]) {
+        for (int i = 0; i < size; i++) {
+            if (item.equals(stringArray[i])) {
                 return i;
             }
         }
@@ -103,8 +113,8 @@ public class StringListImpl implements StringList {
 
     @Override
     public int lastIndexOf(String item) {
-        for (int i = DEFAULT_CAPACITY - 1; i >= 0; i--) {
-            if (item == stringArray[i]) {
+        for (int i = size; i >= 0; i--) {
+            if (item.equals(stringArray[i])) {
                 return i;
             }
         }
@@ -113,12 +123,11 @@ public class StringListImpl implements StringList {
 
     @Override
     public String get(int index) {
-        for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-            if (index < 0 || index > DEFAULT_CAPACITY) {
-                throw new NullStringException();
-            }
+        if (validateIndex(index) == true) {
+            return stringArray[index];
+        } else {
+            throw new InvalidIndexException();
         }
-        return stringArray[index];
     }
 
     @Override
@@ -127,7 +136,7 @@ public class StringListImpl implements StringList {
             throw new NegativeArraySizeException();
         }
         for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-            if (stringArray[i] == otherList.toArray()[i]) {
+            if (Arrays.equals(this.toArray(), otherList.toArray())) {
                 return true;
             }
         }
@@ -136,12 +145,12 @@ public class StringListImpl implements StringList {
 
     @Override
     public int size() {
-        return stringArray.length + 1;
+        return size;
     }
 
     @Override
     public boolean isEmpty() {
-        if (stringArray.length == 0) {
+        if (size == 0) {
             return true;
         }
         return false;
@@ -149,11 +158,16 @@ public class StringListImpl implements StringList {
 
     @Override
     public void clear() {
-        stringArray = new String[DEFAULT_CAPACITY];
+        stringArray = new String[size = 0];
     }
 
     @Override
     public String[] toArray() {
-        return Arrays.copyOf(stringArray,DEFAULT_CAPACITY);
+        return Arrays.copyOf(stringArray, size);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(stringArray);
     }
 }
